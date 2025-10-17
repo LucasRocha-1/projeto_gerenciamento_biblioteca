@@ -2,8 +2,10 @@ using BibliotecaApi.Modelos;
 using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
-var app = builder.Build();
 
+builder.Services.AddDbContext<AppDataContext>();
+
+var app = builder.Build();
 // --- Dados em Memória ---
 var autores = new List<Autor>
 {
@@ -29,41 +31,58 @@ app.MapGet("/", () => "API da Biblioteca").WithTags("Info");
 
 #region Endpoints de Usuários (Users)
 
-app.MapGet("/api/usuarios", () => Results.Ok(usuarios)).WithTags("Usuarios");
-
-app.MapGet("/api/usuarios/{id:int}", (int id) =>
+// GET: Listar todos os usuários
+app.MapGet("/api/usuarios", async (AppDataContext db) => 
 {
-    var usuario = usuarios.FirstOrDefault(u => u.Id == id);
-    return usuario is not null ? Results.Ok(usuario) : Results.NotFound();
+    return Results.Ok(await db.Usuarios.ToListAsync());
 })
-.WithName("GetUsuarioPorId") // Damos um nome à rota para referência
 .WithTags("Usuarios");
 
-app.MapPost("/api/usuarios", ([FromBody] Usuario novoUsuario) =>
+// GET: Buscar usuário por ID
+app.MapGet("/api/usuarios/{id:int}", async (int id, AppDataContext db) =>
 {
-    // Simula a criação de um novo ID
-    novoUsuario.Id = usuarios.Any() ? usuarios.Max(u => u.Id) + 1 : 1;
-    usuarios.Add(novoUsuario);
+    
+    var usuario = await db.Usuarios.FindAsync(id);
+    return usuario is not null ? Results.Ok(usuario) : Results.NotFound();
+})
+.WithName("GetUsuarioPorId")
+.WithTags("Usuarios");
+
+// POST: Criar um novo usuário
+app.MapPost("/api/usuarios", async ([FromBody] Usuario novoUsuario, AppDataContext db) =>
+{
+    
+    db.Usuarios.Add(novoUsuario);
+    
+    await db.SaveChangesAsync();
+    
     return Results.CreatedAtRoute("GetUsuarioPorId", new { id = novoUsuario.Id }, novoUsuario);
 }).WithTags("Usuarios");
 
-app.MapPut("/api/usuarios/{id:int}", (int id, [FromBody] Usuario usuarioAtualizado) =>
+// PUT: Atualizar um usuário existente
+app.MapPut("/api/usuarios/{id:int}", async (int id, [FromBody] Usuario usuarioAtualizado, AppDataContext db) =>
 {
-    var usuario = usuarios.FirstOrDefault(u => u.Id == id);
+    var usuario = await db.Usuarios.FindAsync(id);
     if (usuario is null) return Results.NotFound();
 
     usuario.Nome = usuarioAtualizado.Nome;
     usuario.Email = usuarioAtualizado.Email;
 
+    // Salva as alterações no banco.
+    await db.SaveChangesAsync();
+
     return Results.Ok(usuario);
 }).WithTags("Usuarios");
 
-app.MapDelete("/api/usuarios/{id:int}", (int id) =>
+// DELETE: Remover um usuário
+app.MapDelete("/api/usuarios/{id:int}", async (int id, AppDataContext db) =>
 {
-    var usuario = usuarios.FirstOrDefault(u => u.Id == id);
+    var usuario = await db.Usuarios.FindAsync(id);
     if (usuario is null) return Results.NotFound();
 
-    usuarios.Remove(usuario);
+    db.Usuarios.Remove(usuario);
+    await db.SaveChangesAsync();
+
     return Results.Ok(usuario);
 }).WithTags("Usuarios");
 
@@ -74,7 +93,7 @@ app.MapDelete("/api/usuarios/{id:int}", (int id) =>
 // Retorna todos os livros, sem paginação
 app.MapGet("/api/livros", () =>
 {
-    // Para cada livro, encontra o autor correspondente na lista de autores
+
     foreach (var livro in livros)
     {
         livro.Autor = autores.FirstOrDefault(a => a.Id == livro.AutorId);
