@@ -2,16 +2,16 @@ namespace BibliotecaApi.Helpers;
 
 public class PaginationHeader
 {
-    public int CurrentPage { get; }
-    public int ItemsPerPage { get; }
-    public int TotalItems { get; }
-    public int TotalPages { get; }
+    public int PaginaAtual { get; set; }
+    public int ItensPorPagina { get;  set; }
+    public int TodosItens { get;  set; }
+    public int TodasPaginas { get;  set; }
 
-    public PaginationHeader(int currentPage, int itemsPerPage, int totalItems, int totalPages)
+    public PaginationHeader(int PaginaAtual, int ItensPorPagina, int TodosItens, int TodasPaginas)
     {
-        CurrentPage = currentPage;
-        ItemsPerPage = itemsPerPage;
-        TotalItems = totalItems;
-        TotalPages = totalPages;
+        this.PaginaAtual = PaginaAtual;
+        this.ItensPorPagina = ItensPorPagina;
+        this.TodosItens = TodosItens;
+        this.TodasPaginas = TodasPaginas;
     }
 }

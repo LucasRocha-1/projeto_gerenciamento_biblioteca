@@ -7,7 +7,10 @@ GET http://localhost:5093/
 
 ### Listar todos os usuários
 GET http://localhost:5093/api/usuarios
-
+### Listar todos os livros
+GET http://localhost:5093/api/livros
+### Listar todos os usuários
+GET http://localhost:5093/api/autores
 ### Buscar usuário por ID
 GET http://localhost:5093/api/usuarios/1
 
