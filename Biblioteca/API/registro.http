@@ -73,7 +73,18 @@ DELETE http://localhost:5093/api/livros/1
 
 ### Emprestar um livro para um usuário
 # Empresta o livro de ID 3 para o usuário de ID 1
-POST http://localhost:5093/api/livros/3/emprestar/1
+POST http://localhost:5093/api/livros/1/emprestar/1
+
+
+
+### Devolve o livro
+
+POST http://localhost:5093/api/livros/1/devolver
+
+
+###
+### =================== ENDPOINTS DE AUTOR ===================
+###
 
 
 ### Cadastrar um novo autor 
@@ -98,5 +109,5 @@ Content-Type:  application/json
     "autorId": 4
 }
 
-### 3. Listar todos os autores para ver o livro associado
+### Listar todos os autores para ver o livro associado
 GET   http://localhost:5093/api/autores/listar

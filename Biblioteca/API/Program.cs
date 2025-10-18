@@ -71,61 +71,48 @@ app.MapDelete("/api/usuarios/{id:int}", async (int id, AppDataContext db) =>
 
 #region Endpoints de Livros (Books)
 
-// Retorna todos os livros, sem paginação
-app.MapGet("/api/livros", (AppDataContext db) =>
+// GET: listar todos os livros
+app.MapGet("/api/livros", async (AppDataContext db) =>
 {
-    foreach (var livro in livros)
-    {
-        livro.Autor = autores.FirstOrDefault(a => a.Id == livro.AutorId);
-    }
+    var livros = await db.Livros
+        .Include(l => l.Autor)
+        .Include(l => l.EmprestadoParaUsuario)
+        .ToListAsync();
     return Results.Ok(livros);
 }).WithTags("Livros");
 
-app.MapGet("/api/livros/{id:int}", (int id, AppDataContext db) =>
+// GET: buscar livro por ID
+app.MapGet("/api/livros/{id:int}", async (int id, AppDataContext db) =>
 {
-    var livro = livros.FirstOrDefault(b => b.Id == id);
-    if (livro is null) return Results.NotFound();
+    var livro = await db.Livros
+        .Include(l => l.Autor)
+        .Include(l => l.EmprestadoParaUsuario)
+        .FirstOrDefaultAsync(l => l.Id == id);
 
-    livro.Autor = autores.FirstOrDefault(a => a.Id == livro.AutorId);
-    livro.EmprestadoParaUsuario = usuarios.FirstOrDefault(u => u.Id == livro.EmprestadoParaUsuarioId);
+    return livro is not null ? Results.Ok(livro) : Results.NotFound();
+}).WithName("GetLivroPorId").WithTags("Livros");
 
-    return Results.Ok(livro);
-})
-.WithName("GetLivroPorId")
-.WithTags("Livros");
-
-app.MapPost("/api/livros", ([FromBody] Livro novoLivro, AppDataContext db) =>
-{
-    var autorExiste = autores.Any(a => a.Id == novoLivro.AutorId);
-    if (!autorExiste) return Results.BadRequest("Autor não encontrado.");
-
-    novoLivro.Id = livros.Any() ? livros.Max(b => b.Id) + 1 : 1;
-    livros.Add(novoLivro);
-    return Results.CreatedAtRoute("GetLivroPorId", new { id = novoLivro.Id }, novoLivro);
-}).WithTags("Livros");
-
+// POST: adicionar livro
 app.MapPost("/api/livros", async (AppDataContext db, [FromBody] Livro novoLivro) =>
 {
-    // A verificação acontece AQUI, usando o banco de dados (db.Autores)
     var autorExiste = await db.Autores.AnyAsync(a => a.Id == novoLivro.AutorId);
-    
     if (!autorExiste)
-    {
-
         return Results.BadRequest("Autor não encontrado.");
-    }
 
     db.Livros.Add(novoLivro);
     await db.SaveChangesAsync();
     return Results.CreatedAtRoute("GetLivroPorId", new { id = novoLivro.Id }, novoLivro);
-});
+}).WithTags("Livros");
 
-app.MapDelete("/api/livros/{id:int}", (int id, AppDataContext db) =>
+// DELETE: remover livro
+app.MapDelete("/api/livros/{id:int}", async (int id, AppDataContext db) =>
 {
-    var livro = livros.FirstOrDefault(b => b.Id == id);
-    if (livro is null) return Results.NotFound();
+    var livro = await db.Livros.FindAsync(id);
+    if (livro is null)
+        return Results.NotFound();
 
-    livros.Remove(livro);
+    db.Livros.Remove(livro);
+    await db.SaveChangesAsync();
     return Results.Ok(livro);
 }).WithTags("Livros");
 
@@ -133,31 +120,53 @@ app.MapDelete("/api/livros/{id:int}", (int id, AppDataContext db) =>
 
 #region Endpoints de Empréstimos (Loans)
 
-app.MapPost("/api/livros/{livroId:int}/emprestar/{usuarioId:int}", (int livroId, int usuarioId, AppDataContext db) =>
+// POST: Emprestar um livro para um usuário
+app.MapPost("/api/livros/{livroId:int}/emprestar/{usuarioId:int}", async (int livroId, int usuarioId, AppDataContext db) =>
 {
-    var livro = livros.FirstOrDefault(l => l.Id == livroId);
+    var livro = await db.Livros.FindAsync(livroId);
     if (livro is null)
-    {
         return Results.NotFound("Livro não encontrado.");
-    }
 
-    var usuario = usuarios.FirstOrDefault(u => u.Id == usuarioId);
+    var usuario = await db.Usuarios.FindAsync(usuarioId);
     if (usuario is null)
-    {
         return Results.NotFound("Usuário não encontrado.");
-    }
 
     if (livro.EmprestadoParaUsuarioId is not null)
-    {
         return Results.Conflict($"Este livro já está emprestado para o usuário com ID {livro.EmprestadoParaUsuarioId}.");
-    }
 
     livro.EmprestadoParaUsuarioId = usuarioId;
     livro.DataEmprestimo = DateTime.UtcNow;
 
-    return Results.Ok(livro);
-})
-.WithTags("Emprestimos");
+    await db.SaveChangesAsync();
+
+    return Results.Ok(new
+    {
+        mensagem = $"Livro '{livro.Titulo}' emprestado para {usuario.Nome}.",
+        livro
+    });
+}).WithTags("Emprestimos");
+
+// POST: Devolver um livro
+app.MapPost("/api/livros/{livroId:int}/devolver", async (int livroId, AppDataContext db) =>
+{
+    var livro = await db.Livros.FindAsync(livroId);
+    if (livro is null)
+        return Results.NotFound("Livro não encontrado.");
+
+    if (livro.EmprestadoParaUsuarioId is null)
+        return Results.BadRequest("Este livro não está emprestado.");
+
+    livro.EmprestadoParaUsuarioId = null;
+    livro.DataEmprestimo = null;
+
+    await db.SaveChangesAsync();
+
+    return Results.Ok(new
+    {
+        mensagem = $"Livro '{livro.Titulo}' foi devolvido com sucesso.",
+        livro
+    });
+}).WithTags("Emprestimos");
 
 #endregion
 
