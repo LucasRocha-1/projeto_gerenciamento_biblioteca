@@ -6,6 +6,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<AppDataContext>();
 
+builder.Services.AddCors(options =>
+    options.AddPolicy("Acesso Total",
+        configs => configs
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod())
+);
+
 var app = builder.Build();
 // --- Dados em Memória (Exemplo) ---
 var autores = new List<Autor>{ };
@@ -217,6 +225,8 @@ app.MapDelete("/api/autores/{id:int}", async (AppDataContext db, int id) =>
 
     return Results.Ok(autor);
 }).WithTags("Autores");
+
+app.UseCors("Acesso Total");
 
 #endregion
 app.Run();
