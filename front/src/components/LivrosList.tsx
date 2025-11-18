@@ -1,56 +1,89 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-
-interface Autor {
-  nome: string;
-}
+import { Link } from "react-router-dom";
 
 interface Livro {
   id: number;
   titulo: string;
-  autor?: Autor;
+  autor: { nome: string };
+  emprestadoParaUsuarioId: number | null;
+  emprestadoParaUsuario: { nome: string } | null;
 }
 
-const LivrosList: React.FC = () => {
+function LivrosList() {
   const [livros, setLivros] = useState<Livro[]>([]);
 
   useEffect(() => {
     carregarLivros();
   }, []);
 
-  const carregarLivros = async () => {
-    try {
-      const response = await axios.get<Livro[]>("http://localhost:5093/api/livros");
-      setLivros(response.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  function carregarLivros() {
+    axios.get("http://localhost:5093/api/livros").then((resposta) => {
+      setLivros(resposta.data);
+    });
+  }
 
-  const deletarLivro = async (id: number) => {
-    if (!window.confirm("Deseja realmente deletar este livro?")) return;
+  function handleDevolver(id: number) {
+    if (!window.confirm("Confirmar a devolução deste livro?")) return;
 
-    try {
-      await axios.delete(`http://localhost:5093/api/livros/${id}`);
-      setLivros(livros.filter(livro => livro.id !== id));
-    } catch (error) {
-      console.error(error);
-    }
-  };
+    axios
+      .post(`http://localhost:5093/api/livros/${id}/devolver`)
+      .then(() => {
+        alert("Livro devolvido com sucesso!");
+        carregarLivros(); 
+      })
+      .catch((erro) => {
+        alert("Erro ao devolver: " + erro.message);
+      });
+  }
+
+  function handleExcluir(id: number) {
+     axios.delete(`http://localhost:5093/api/livros/${id}`)
+     .then(() => carregarLivros());
+  }
 
   return (
-    <div>
-      <h2>Lista de Livros</h2>
-      <ul>
-        {livros.map(livro => (
-          <li key={livro.id}>
-            {livro.titulo} - {livro.autor?.nome || "Autor não definido"}{" "}
-            <button onClick={() => deletarLivro(livro.id)}>Deletar</button>
-          </li>
-        ))}
-      </ul>
+    <div style={{ padding: "20px" }}>
+      <h2>Gestão de Acervo (Admin)</h2>
+      <Link to="/cadastro-livro">Cadastrar Novo Livro</Link> | 
+      <Link to="/cadastro-autor"> Cadastrar Autor</Link>
+
+      <table border={1} style={{ width: "100%", marginTop: "20px", borderCollapse: "collapse" }}>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Título</th>
+            <th>Autor</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {livros.map((livro) => (
+            <tr key={livro.id}>
+              <td>{livro.id}</td>
+              <td>{livro.titulo}</td>
+              <td>{livro.autor?.nome}</td>
+              <td style={{ color: livro.emprestadoParaUsuarioId ? "red" : "green" }}>
+                {livro.emprestadoParaUsuarioId
+                  ? `Emprestado para: ${livro.emprestadoParaUsuario?.nome}`
+                  : "Disponível"}
+              </td>
+              <td>
+                {/* BOTÃO DE DEVOLUÇÃO SÓ APARECE SE ESTIVER EMPRESTADO */}
+                {livro.emprestadoParaUsuarioId && (
+                  <button onClick={() => handleDevolver(livro.id)} style={{ marginRight: "10px" }}>
+                  Devolver
+                  </button>
+                )}
+                <button onClick={() => handleExcluir(livro.id)}>Excluir</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
-};
+}
 
 export default LivrosList;

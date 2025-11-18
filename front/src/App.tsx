@@ -4,35 +4,29 @@ import CadastroLivro from "./components/CadastroLivro";
 import CadastroUsuario from "./components/CadastroUsuario";
 import LivrosList from "./components/LivrosList";
 import UsuariosList from "./components/UsuariosList";
+import Home from "./components/Home";
+import CatalogoLivros from "./components/CatalogoLivros"; 
 
 function App() {
   return (
     <Router>
       <div className="App">
-        <h1>Biblioteca - Gerenciamento de Livros</h1>
-        
-        {/* Links de navegação */}
-        <nav>
-          <ul>
-            <li>
-              <Link to="/">Lista de Livros</Link>
-            </li>
-            <li>
-              <Link to="/cadastro-livro">Cadastrar Livro</Link>
-            </li>
-            <li>
-              <Link to="/usuarios">Lista de Usuários</Link>
-            </li>
-            <li>
-              <Link to="/cadastro-usuario">Cadastrar Usuário</Link>
-            </li>
-          </ul>
+        <nav style={{ padding: '10px', backgroundColor: '#eee', marginBottom: '20px' }}>
+          <Link to="/" style={{ marginRight: '10px' }}>Home</Link> | 
+          <Link to="/admin/livros" style={{ margin: '0 10px' }}>Admin Livros</Link>
         </nav>
 
-        {/* Definindo as rotas */}
         <Routes>
-          <Route path="/" element={<LivrosList />} />
-          <Route path="/usuarios" element={<UsuariosList />} />
+          {/* Rota principal agora é a Home com os 3 botões */}
+          <Route path="/" element={<Home />} />
+
+          {/* Rotas do Usuário */}
+          <Route path="/catalogo" element={<CatalogoLivros />} />
+          <Route path="/dashboard" element={<h2>falta fazer</h2>} />
+
+          {/* Rotas de Admin*/}
+          <Route path="/admin/livros" element={<LivrosList />} />
+          <Route path="/admin/usuarios" element={<UsuariosList />} />
           <Route path="/cadastro-livro" element={<CadastroLivro />} />
           <Route path="/cadastro-usuario" element={<CadastroUsuario />} />
         </Routes>
