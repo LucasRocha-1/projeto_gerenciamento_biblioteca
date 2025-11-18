@@ -184,6 +184,8 @@ app.MapPost("/api/livros/{livroId:int}/devolver", async (int livroId, AppDataCon
 // POST: Cadastrar um novo autor
 app.MapPost("/api/autores", async (AppDataContext db, [FromBody] Autor novoAutor) =>
 {
+    int novoId = (await db.Autores.MaxAsync(a => (int?)a.Id)) ?? 0;
+    novoAutor.Id = novoId + 1;
     db.Autores.Add(novoAutor);
     await db.SaveChangesAsync();
     // Retorna o autor criado com o ID gerado pelo banco

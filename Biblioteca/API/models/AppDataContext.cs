@@ -15,4 +15,18 @@ public class AppDataContext : DbContext
         
         optionsBuilder.UseSqlite("Data Source=Biblioteca.db");
     }
+     protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Autor>()
+            .Property(a => a.Id)
+            .ValueGeneratedOnAdd();
+        
+        modelBuilder.Entity<Livro>()
+            .Property(a => a.Id)
+            .ValueGeneratedOnAdd();
+
+        modelBuilder.Entity<Usuario>()
+            .Property(a => a.Id)
+            .ValueGeneratedOnAdd();
+    }
 }
