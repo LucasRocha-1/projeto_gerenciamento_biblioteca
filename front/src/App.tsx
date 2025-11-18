@@ -6,6 +6,7 @@ import LivrosList from "./components/LivrosList";
 import UsuariosList from "./components/UsuariosList";
 import Home from "./components/Home";
 import CatalogoLivros from "./components/CatalogoLivros"; 
+import CadastroAutor from "./components/CadastroAutor";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path="/admin/usuarios" element={<UsuariosList />} />
           <Route path="/cadastro-livro" element={<CadastroLivro />} />
           <Route path="/cadastro-usuario" element={<CadastroUsuario />} />
+          <Route path="/cadastro-autor" element={<CadastroAutor />} />
         </Routes>
       </div>
     </Router>
