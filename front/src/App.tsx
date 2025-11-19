@@ -12,9 +12,10 @@ function App() {
   return (
     <Router>
       <div className="App">
-        <nav style={{ padding: '10px', backgroundColor: '#eee', marginBottom: '20px' }}>
+        <nav>
           <Link to="/" style={{ marginRight: '10px' }}>Home</Link> | 
           <Link to="/admin/livros" style={{ margin: '0 10px' }}>Admin Livros</Link>
+          <Link to="/admin/usuarios">Clientes</Link>
         </nav>
 
         <Routes>
@@ -31,6 +32,7 @@ function App() {
           <Route path="/cadastro-livro" element={<CadastroLivro />} />
           <Route path="/cadastro-usuario" element={<CadastroUsuario />} />
           <Route path="/cadastro-autor" element={<CadastroAutor />} />
+          <Route path="/admin/usuarios" element={<UsuariosList />} />
         </Routes>
       </div>
     </Router>
