@@ -3,6 +3,7 @@ using System;
 using BibliotecaApi.Modelos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(AppDataContext))]
-    partial class AppDataContextModelSnapshot : ModelSnapshot
+    [Migration("20251119011832_AddUsuarioSenha")]
+    partial class AddUsuarioSenha
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.10");
@@ -30,41 +33,6 @@ namespace API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Autores");
-                });
-
-            modelBuilder.Entity("BibliotecaApi.Modelos.Emprestimo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime?>("DataDevolucao")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("DataEmprestimo")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("LivroId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("LivroTitulo")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("UsuarioNome")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Emprestimos");
                 });
 
             modelBuilder.Entity("BibliotecaApi.Modelos.Livro", b =>
@@ -111,9 +79,6 @@ namespace API.Migrations
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsAdmin")
-                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Nome")
                         .IsRequired()
