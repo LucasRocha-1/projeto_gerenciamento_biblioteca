@@ -56,3 +56,5 @@ LOGS_DEBUG.md
 # SQLite artefatos temporários
 *.db-shm
 *.db-wal
+node_modules/
+package-lock.json
