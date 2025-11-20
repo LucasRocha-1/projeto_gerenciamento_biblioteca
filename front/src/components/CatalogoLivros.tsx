@@ -8,7 +8,12 @@ interface Livro {
   emprestadoParaUsuarioId: number | null;
 }
 
-function CatalogoLivros() {
+interface Props {
+  usuarioId: number;
+  usuarioNome: string;
+}
+
+function CatalogoLivros({ usuarioId, usuarioNome }: Props) {
   const [livros, setLivros] = useState<Livro[]>([]);
 
   useEffect(() => {
@@ -16,15 +21,19 @@ function CatalogoLivros() {
   }, []);
 
   function carregarLivros() {
-    axios.get('http://localhost:5093/api/livros') 
-      .then(resposta => setLivros(resposta.data));
+    console.log("Carregando livros...");
+    axios.get('http://localhost:5093/api/livros')
+      .then(resposta => {
+        console.log("Livros carregados:", resposta.data);
+        setLivros(resposta.data);
+      })
+      .catch(erro => {
+        console.error("Erro ao carregar livros:", erro);
+      });
   }
 
   function handleReservar(id: number) {
-    //usando usuarioId = 1 fixo para teste. 
-    const usuarioIdTeste = 1; 
-
-    axios.post(`http://localhost:5093/api/livros/${id}/emprestar/${usuarioIdTeste}`)
+    axios.post(`http://localhost:5093/api/emprestimos/registrar/${id}/${usuarioId}`)
       .then(() => {
         alert('Livro reservado com sucesso!');
         carregarLivros();
