@@ -69,7 +69,6 @@ using (var scope = app.Services.CreateScope())
 app.MapControllers();
 app.UseCors("Acesso Total");
 
-#endregion
 
 
 #region api de livros do google
