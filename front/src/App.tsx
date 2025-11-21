@@ -6,7 +6,7 @@ import LivrosList from "./components/LivrosList";
 import UsuariosList from "./components/UsuariosList";
 import Home from "./components/Home";
 import CatalogoLivros from "./components/CatalogoLivros";
-import CadastroAutor from "./components/CadastroAutor";
+// CadastroAutor removido: autor agora criado junto com o livro
 import HistoricoEmprestimos from "./components/HistoricoEmprestimos";
 import Dashboard from "./components/Dashboard";
 import AdminPanel from "./components/AdminPanel";
@@ -75,9 +75,8 @@ function AppContent() {
         <Route path="/admin/painel" element={<AdminPanel />} />
         <Route path="/admin/livros" element={<LivrosList />} />
         <Route path="/admin/usuarios" element={<UsuariosList />} />
-        <Route path="/cadastro-livro" element={<CadastroLivro />} />
-        <Route path="/cadastro-usuario" element={<CadastroUsuario />} />
-        <Route path="/cadastro-autor" element={<CadastroAutor />} />
+          <Route path="/cadastro-livro" element={<CadastroLivro />} />
+          <Route path="/cadastro-usuario" element={<CadastroUsuario />} />
       </Routes>
     </>
   );

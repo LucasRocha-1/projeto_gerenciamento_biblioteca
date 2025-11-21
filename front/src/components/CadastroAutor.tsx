@@ -1,40 +1,14 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React from "react";
 
-function CadastroAutor() {
-  const [nome, setNome] = useState("");
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const autor = { nome };
-
-    try {
-      const response = await axios.post("http://localhost:5093/api/autores", autor);
-      if (response.status === 201) {
-        alert("Autor cadastrado com sucesso!");
-        setNome("");
-      }
-    } catch (error) {
-      alert("Erro ao cadastrar Autor.");
-    }
-  };
-
+// Componente mantido apenas para compatibilidade: a criação de autores
+// agora é feita automaticamente no fluxo de cadastro de livro.
+const CadastroAutor: React.FC = () => {
   return (
-    <div>
-      <h2>Cadastrar Autor</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Nome"
-          value={nome}
-          onChange={(e) => setNome(e.target.value)}
-          required
-        />
-        <button type="submit">Cadastrar</button>
-      </form>
+    <div style={{ padding: 20 }}>
+      <h2>Cadastro de Autor (removido)</h2>
+      <p>Criação de autores agora ocorre ao cadastrar um livro.</p>
     </div>
   );
-}
+};
 
 export default CadastroAutor;
