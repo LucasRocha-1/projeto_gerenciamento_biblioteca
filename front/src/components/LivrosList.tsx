@@ -45,9 +45,9 @@ function LivrosList() {
   // --- LÓGICA DE DEVOLUÇÃO ---
   function handleDevolver(id: number) {
     if (!window.confirm("Confirmar a devolução deste livro?")) return;
-    axios.post(`http://localhost:5093/api/livros/${id}/devolver`)
+    axios.post(`http://localhost:5093/api/emprestimos/devolver-por-livro/${id}`)
       .then(() => { alert("Devolvido!"); carregarLivros(); })
-      .catch((erro) => alert("Erro: " + erro.message));
+      .catch((erro) => alert("Erro: " + (erro.response?.data || erro.message)));
   }
 
   function handleExcluir(id: number) {
@@ -68,7 +68,7 @@ function LivrosList() {
         return;
     }
     
-    axios.post(`http://localhost:5093/api/livros/${livroParaEmprestar}/emprestar/${usuarioSelecionadoId}`)
+    axios.post(`http://localhost:5093/api/emprestimos/registrar/${livroParaEmprestar}/${usuarioSelecionadoId}`)
       .then(() => {
           alert("Empréstimo realizado com sucesso!");
           setLivroParaEmprestar(null); // Fecha modal

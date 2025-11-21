@@ -11,34 +11,36 @@ function CadastroLivro() {
   const [titulo, setTitulo] = useState("");
   const [isbn, setIsbn] = useState("");
   const [ano, setAno] = useState(2024);
-  const [autorId, setAutorId] = useState(""); // Vai guardar o ID selecionado
-  const [autores, setAutores] = useState<Autor[]>([]); // Lista para o Select
+  const [autorNome, setAutorNome] = useState(""); // Nome do autor para criar junto
 
   const navigate = useNavigate();
 
-  // Carrega os autores assim que a tela abre
-  useEffect(() => {
-    axios.get("http://localhost:5093/api/autores/listar").then((res) => {
-      setAutores(res.data);
-    });
-  }, []);
-
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    const novoLivro = {
-      titulo: titulo,
-      isbn: isbn,
-      anoPublicacao: ano,
-      autorId: Number(autorId) // Converte para numero antes de enviar
-    };
+    try {
+      if (!autorNome) {
+        alert('Informe o nome do autor');
+        return;
+      }
 
-    axios.post("http://localhost:5093/api/livros", novoLivro)
-      .then(() => {
-        alert("Livro cadastrado com sucesso!");
-        navigate("/admin/livros");
-      })
-      .catch((erro) => alert("Erro: " + erro.response?.data || erro.message));
+      // 1) Criar o autor (retorna o autor criado com id)
+      const autorRes = await axios.post("http://localhost:5093/api/autores", { nome: autorNome });
+      const criado = autorRes.data;
+      const novoLivro = {
+        titulo: titulo,
+        isbn: isbn,
+        anoPublicacao: ano,
+        autorId: Number(criado.id ?? criado.id)
+      };
+
+      // 2) Criar o livro com o autor criado
+      await axios.post("http://localhost:5093/api/livros", novoLivro);
+      alert("Livro cadastrado com sucesso!");
+      navigate("/admin/livros");
+    } catch (erro: any) {
+      alert("Erro: " + (erro.response?.data || erro.message));
+    }
   }
 
   return (
@@ -55,15 +57,8 @@ function CadastroLivro() {
         <label>Ano:</label>
         <input type="number" value={ano} onChange={(e) => setAno(Number(e.target.value))} />
 
-        <label>Autor:</label>
-        <select value={autorId} onChange={(e) => setAutorId(e.target.value)} required>
-          <option value="">Selecione um autor...</option>
-          {autores.map((autor) => (
-            <option key={autor.id} value={autor.id}>
-              {autor.nome}
-            </option>
-          ))}
-        </select>
+        <label>Autor (novo):</label>
+        <input type="text" value={autorNome} onChange={(e) => setAutorNome(e.target.value)} placeholder="Nome do autor" required />
 
         <button type="submit">Cadastrar Livro</button>
       </form>

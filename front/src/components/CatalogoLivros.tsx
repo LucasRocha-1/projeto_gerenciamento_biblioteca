@@ -29,21 +29,6 @@ function CatalogoLivros({ usuarioId, usuarioNome }: Props) {
   useEffect(() => {
     carregarDados();
   }, []);
-
-  function carregarLivros() {
-    console.log("Carregando livros...");
-    axios.get('http://localhost:5093/api/livros')
-      .then(resposta => {
-        console.log("Livros carregados:", resposta.data);
-        setLivros(resposta.data);
-      })
-      .catch(erro => {
-        console.error("Erro ao carregar livros:", erro);
-      });
-  }
-
-  function handleReservar(id: number) {
-    axios.post(`http://localhost:5093/api/emprestimos/registrar/${id}/${usuarioId}`)
   function carregarDados() {
     // Busca Livros
     axios.get('http://localhost:5093/api/livros').then(res => setLivros(res.data));
@@ -62,7 +47,7 @@ function CatalogoLivros({ usuarioId, usuarioNome }: Props) {
       return;
     }
 
-    axios.post(`http://localhost:5093/api/livros/${livroSelecionado}/emprestar/${usuarioSelecionadoId}`)
+    axios.post(`http://localhost:5093/api/emprestimos/registrar/${livroSelecionado}/${usuarioSelecionadoId}`)
       .then(() => {
         alert('Livro reservado com sucesso!');
         setLivroSelecionado(null); // Fecha o modal
@@ -80,12 +65,7 @@ function CatalogoLivros({ usuarioId, usuarioNome }: Props) {
       {/* LISTA DE LIVROS */}
       <div className="catalogo-grid">
         {livros.map(livro => (
-          <div key={livro.id} className="card-livro"><img 
-                src={livro.capaUrl || "https://via.placeholder.com/128x190?text=Sem+Capa"} 
-                alt={livro.titulo}
-                style={{ width: '100px', height: '150px', objectFit: 'cover', marginBottom: '10px' }} 
-            />
-            
+          <div key={livro.id} className="card-livro">
             <h3>{livro.titulo}</h3>
             <p>Autor: {livro.autor?.nome || 'Desconhecido'}</p>
 

@@ -21,6 +21,29 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDataContext>();
+        // Antes de aplicar migrations, marque manualmente migrations problemáticas
+        try
+        {
+            // Garante que a tabela de histórico exista
+            db.Database.ExecuteSqlRaw("CREATE TABLE IF NOT EXISTS \"__EFMigrationsHistory\" (\"MigrationId\" TEXT NOT NULL CONSTRAINT \"PK___EFMigrationsHistory\" PRIMARY KEY, \"ProductVersion\" TEXT NOT NULL);");
+            // Marca a migration que recria tabelas (evita erro 'table already exists') como aplicada
+            db.Database.ExecuteSqlRaw("INSERT OR IGNORE INTO \"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\") VALUES ('20251119001616_AdicionandoCapas', '9.0.10');");
+        }
+        catch
+        {
+            // Ignorar falhas aqui — iremos tentar aplicar migrations normalmente em seguida
+        }
+
+        // Aplica migrations pendentes automaticamente (garante que colunas como IsAdmin existam)
+        try
+        {
+            db.Database.Migrate();
+        }
+        catch (Microsoft.Data.Sqlite.SqliteException ex)
+        {
+            if (!ex.Message.Contains("already exists", StringComparison.OrdinalIgnoreCase))
+                throw;
+        }
     
     // Adicionar autores se não existirem
     if (!db.Autores.Any())
@@ -44,6 +67,37 @@ using (var scope = app.Services.CreateScope())
     // Adicionar livros se não existirem
     if (!db.Livros.Any())
     {
+        // Garantir que a coluna CapaUrl exista (pode não existir se uma migration que recriava tabelas foi ignorada)
+        try
+        {
+            var connCheck = db.Database.GetDbConnection();
+            connCheck.Open();
+            using (var cmdCheck = connCheck.CreateCommand())
+            {
+                cmdCheck.CommandText = "PRAGMA table_info('Livros');";
+                using var rdr = cmdCheck.ExecuteReader();
+                var hasCapa = false;
+                while (rdr.Read())
+                {
+                    var col = rdr.GetString(1);
+                    if (string.Equals(col, "CapaUrl", StringComparison.OrdinalIgnoreCase))
+                    {
+                        hasCapa = true;
+                        break;
+                    }
+                }
+                rdr.Close();
+                if (!hasCapa)
+                {
+                    db.Database.ExecuteSqlRaw("ALTER TABLE Livros ADD COLUMN CapaUrl TEXT NULL;");
+                }
+            }
+            connCheck.Close();
+        }
+        catch
+        {
+            // Não bloquear o seed caso não seja possível alterar o schema aqui
+        }
         var autores = db.Autores.ToList();
         var livros = new List<Livro>
         {

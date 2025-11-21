@@ -62,6 +62,10 @@ public class EmprestimosController : ControllerBase
         };
 
         _context.Emprestimos.Add(emprestimo);
+        // Atualiza status do livro como emprestado
+        livro.EmprestadoParaUsuarioId = usuarioId;
+        livro.DataEmprestimo = DateTime.UtcNow;
+        _context.Livros.Update(livro);
         await _context.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetEmprestimo), new { id = emprestimo.Id }, emprestimo);
@@ -76,6 +80,45 @@ public class EmprestimosController : ControllerBase
 
         emprestimo.DataDevolucao = DateTime.UtcNow;
         emprestimo.Status = "devolvido";
+
+        // Atualiza também o livro relacionado: marca como disponível
+        var livro = await _context.Livros.FindAsync(emprestimo.LivroId);
+        if (livro != null)
+        {
+            livro.EmprestadoParaUsuarioId = null;
+            livro.DataEmprestimo = null;
+            _context.Livros.Update(livro);
+        }
+
+        _context.Emprestimos.Update(emprestimo);
+        await _context.SaveChangesAsync();
+
+        return Ok(emprestimo);
+    }
+
+    [HttpPost("devolver-por-livro/{livroId}")]
+    public async Task<IActionResult> DevolverPorLivro(int livroId)
+    {
+        // Encontra o empréstimo ativo mais recente para esse livro
+        var emprestimo = await _context.Emprestimos
+            .Where(e => e.LivroId == livroId && e.Status == "ativo")
+            .OrderByDescending(e => e.DataEmprestimo)
+            .FirstOrDefaultAsync();
+
+        if (emprestimo == null)
+            return NotFound("Empréstimo ativo não encontrado para esse livro.");
+
+        // Reaproveita a lógica de devolver
+        emprestimo.DataDevolucao = DateTime.UtcNow;
+        emprestimo.Status = "devolvido";
+
+        var livro = await _context.Livros.FindAsync(emprestimo.LivroId);
+        if (livro != null)
+        {
+            livro.EmprestadoParaUsuarioId = null;
+            livro.DataEmprestimo = null;
+            _context.Livros.Update(livro);
+        }
 
         _context.Emprestimos.Update(emprestimo);
         await _context.SaveChangesAsync();

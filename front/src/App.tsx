@@ -87,30 +87,6 @@ function App() {
   return (
     <Router>
       <AppContent />
-      <div className="App">
-        <nav>
-          <Link to="/" style={{ marginRight: '10px' }}>Home</Link> | 
-          <Link to="/admin/livros" style={{ margin: '0 10px' }}>Admin Livros</Link>
-          <Link to="/admin/usuarios">Clientes</Link>
-        </nav>
-
-        <Routes>
-          {/* Rota principal agora é a Home com os 3 botões */}
-          <Route path="/" element={<Home />} />
-
-          {/* Rotas do Usuário */}
-          <Route path="/catalogo" element={<CatalogoLivros />} />
-          <Route path="/dashboard" element={<h2>falta fazer</h2>} />
-
-          {/* Rotas de Admin*/}
-          <Route path="/admin/livros" element={<LivrosList />} />
-          <Route path="/admin/usuarios" element={<UsuariosList />} />
-          <Route path="/cadastro-livro" element={<CadastroLivro />} />
-          <Route path="/cadastro-usuario" element={<CadastroUsuario />} />
-          <Route path="/cadastro-autor" element={<CadastroAutor />} />
-          <Route path="/admin/usuarios" element={<UsuariosList />} />
-        </Routes>
-      </div>
     </Router>
   );
 }
