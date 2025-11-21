@@ -28,55 +28,95 @@ body {
 }
 
 h1, h2, h3 {
-  color: #333;
+  color: var(--primary);
+  font-weight: 600;
 }
 
+/* --- NAVBAR --- */
 nav {
-  margin-bottom: 20px;
-}
-
-nav ul {
-  list-style-type: none;
-  padding: 0;
+  background-color: var(--primary);
+  padding: 1rem;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   display: flex;
-  gap: 15px;
-}
-
-nav li {
-  display: inline;
+  justify-content: center;
+  gap: 20px;
 }
 
 nav a {
+  color: white;
   text-decoration: none;
-  color: #4CAF50;
-  font-weight: bold;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: background 0.3s;
 }
 
 nav a:hover {
-  color: #45a049;
+  background-color: rgba(255,255,255,0.1);
 }
 
-form input, form button {
-  margin: 10px 0;
-  padding: 10px;
+/* --- CARDS DE LIVROS (CATÁLOGO) --- */
+.catalogo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Responsivo */
+  gap: 25px;
+  margin-top: 20px;
+}
+
+.card-livro {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.card-livro:hover {
+  transform: translateY(-5px); /* Efeito de "subir" */
+  box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+}
+
+.capa-livro {
   width: 100%;
-  max-width: 300px;
+  height: 280px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 10px;
 }
 
+/* --- BOTÕES --- */
 button {
-  background-color: #4CAF50;
-  color: white;
-  border: none;
   cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  transition: opacity 0.2s;
 }
 
 button:hover {
-  background-color: #45a049;
+  opacity: 0.9;
 }
 
-ul {
-  list-style-type: none;
-  padding: 0;
+/* Classes utilitárias para botões */
+.btn-success { background-color: var(--success); color: white; }
+.btn-danger { background-color: var(--danger); color: white; }
+.btn-primary { background-color: var(--accent); color: white; }
+.btn-disabled { background-color: #bdc3c7; color: white; cursor: not-allowed; }
+
+/* --- TABELAS (ADMIN) --- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 ul li { margin: 5px 0; }
@@ -108,3 +148,34 @@ ul li { margin: 5px 0; }
 .login-message { margin-top:14px; padding:10px 12px; border-radius:var(--radius-sm); font-size:13px; font-weight:500; }
 .login-message.success { background:var(--success-bg); color:var(--success-text); }
 .login-message.error { background:var(--error-bg); color:var(--error-text); }
+th {
+  background-color: var(--primary);
+  color: white;
+  padding: 12px;
+  text-align: left;
+}
+
+td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* --- INPUTS E FORMULÁRIOS --- */
+input, select {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  width: 100%;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}

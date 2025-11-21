@@ -15,4 +15,5 @@ public class Livro
     public int? EmprestadoParaUsuarioId { get; set; } // Nullable, pois o livro pode não estar emprestado
     public Usuario? EmprestadoParaUsuario { get; set; }
     public DateTime? DataEmprestimo { get; set; }
+    public string? CapaUrl { get; set; }
 }

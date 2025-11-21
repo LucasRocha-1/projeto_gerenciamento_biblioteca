@@ -68,4 +68,78 @@ using (var scope = app.Services.CreateScope())
 
 app.MapControllers();
 app.UseCors("Acesso Total");
+
+#endregion
+
+
+#region api de livros do google
+app.MapPost("/api/seed", async (AppDataContext db) =>
+{
+    // 1. Verifica se já tem muitos livros para não duplicar à toa
+    if (await db.Livros.CountAsync() > 0) 
+        return Results.Ok("O banco já possui livros cadastrados.");
+
+    using var client = new HttpClient();
+    
+    // 2. Busca livros sobre "Programação" na API do Google
+    var url = "https://www.googleapis.com/books/v1/volumes?q=programacao&maxResults=20";
+    var googleData = await client.GetFromJsonAsync<GoogleBooksResponse>(url);
+
+    if (googleData?.Items is null) return Results.Problem("Erro ao buscar no Google");
+
+    int livrosAdicionados = 0;
+
+    foreach (var item in googleData.Items)
+    {
+        var info = item.VolumeInfo;
+        if (info is null || string.IsNullOrEmpty(info.Title)) continue;
+
+        // Pega o primeiro autor ou define como "Desconhecido"
+        var nomeAutor = info.Authors?.FirstOrDefault() ?? "Autor Desconhecido";
+
+        // 3. Lógica de Autor: Verifica se o autor já existe no banco para não duplicar
+        var autor = await db.Autores.FirstOrDefaultAsync(a => a.Nome == nomeAutor);
+        if (autor == null)
+        {
+            autor = new Autor { Nome = nomeAutor };
+            db.Autores.Add(autor);
+            await db.SaveChangesAsync(); // Salva o autor para gerar o ID
+        }
+
+        // 4. Cria o Livro
+        var novoLivro = new Livro
+        {
+            Titulo = info.Title,
+            AnoPublicacao = int.TryParse(info.PublishedDate?.Split('-')[0], out int ano) ? ano : 2000,
+            ISBN = "Google-" + Guid.NewGuid().ToString().Substring(0, 6), 
+            AutorId = autor.Id,
+            CapaUrl = info.ImageLinks?.Thumbnail
+        };
+
+        db.Livros.Add(novoLivro);
+        livrosAdicionados++;
+    }
+
+    await db.SaveChangesAsync();
+    return Results.Ok(new { mensagem = $"{livrosAdicionados} livros importados do Google com sucesso!" });
+})
+.WithTags("Admin");
+#endregion
+
+
 app.Run();
+
+public class GoogleBooksResponse { public List<GoogleBookItem>? Items { get; set; } }
+public class GoogleBookItem { public GoogleBookVolumeInfo? VolumeInfo { get; set; } }
+public class GoogleBookVolumeInfo
+{
+    public string? Title { get; set; }
+    public List<string>? Authors { get; set; }
+    public string? PublishedDate { get; set; }
+    public GoogleBookImageLinks? ImageLinks { get; set; }
+}
+public class GoogleBookImageLinks 
+{
+    public string? Thumbnail { get; set; }
+    public string? SmallThumbnail { get; set; }
+}
