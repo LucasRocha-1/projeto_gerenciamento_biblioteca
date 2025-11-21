@@ -128,17 +128,24 @@ app.UseCors("Acesso Total");
 #region api de livros do google
 app.MapPost("/api/seed", async (AppDataContext db) =>
 {
-    // 1. Verifica se já tem muitos livros para não duplicar à toa
-    if (await db.Livros.CountAsync() > 0) 
-        return Results.Ok("O banco já possui livros cadastrados.");
-
     using var client = new HttpClient();
-    
-    // 2. Busca livros sobre "Programação" na API do Google
-    var url = "https://www.googleapis.com/books/v1/volumes?q=programacao&maxResults=20";
+
+    // Lista de Assuntos Populares (Pode adicionar mais se quiser)
+    var assuntos = new List<string> 
+    { 
+        "ficcao+fantasia", "harry+potter", "senhor+dos+aneis", "agatha+christie", 
+        "stephen+king", "george+orwell", "jogos+vorazes", "sherlock+holmes", 
+        "percy+jackson", "isaac+asimov", "julia+quinn", "game+of+thrones", "star+wars"
+    };
+
+    var random = new Random();
+    var assuntoEscolhido = assuntos[random.Next(assuntos.Count)];
+
+    // Busca 15 livros do assunto sorteado
+    var url = $"https://www.googleapis.com/books/v1/volumes?q={assuntoEscolhido}&maxResults=15&langRestrict=pt";
     var googleData = await client.GetFromJsonAsync<GoogleBooksResponse>(url);
 
-    if (googleData?.Items is null) return Results.Problem("Erro ao buscar no Google");
+    if (googleData?.Items is null) return Results.Problem("Erro no Google ou nenhum livro encontrado.");
 
     int livrosAdicionados = 0;
 
@@ -146,27 +153,26 @@ app.MapPost("/api/seed", async (AppDataContext db) =>
     {
         var info = item.VolumeInfo;
         if (info is null || string.IsNullOrEmpty(info.Title)) continue;
+        if (await db.Livros.AnyAsync(l => l.Titulo == info.Title)) continue;
 
-        // Pega o primeiro autor ou define como "Desconhecido"
+        // 1. Cria ou Busca Autor
         var nomeAutor = info.Authors?.FirstOrDefault() ?? "Autor Desconhecido";
-
-        // 3. Lógica de Autor: Verifica se o autor já existe no banco para não duplicar
         var autor = await db.Autores.FirstOrDefaultAsync(a => a.Nome == nomeAutor);
         if (autor == null)
         {
             autor = new Autor { Nome = nomeAutor };
             db.Autores.Add(autor);
-            await db.SaveChangesAsync(); // Salva o autor para gerar o ID
+            await db.SaveChangesAsync();
         }
 
-        // 4. Cria o Livro
+        // Cria o Livro
         var novoLivro = new Livro
         {
             Titulo = info.Title,
-            AnoPublicacao = int.TryParse(info.PublishedDate?.Split('-')[0], out int ano) ? ano : 2000,
-            ISBN = "Google-" + Guid.NewGuid().ToString().Substring(0, 6), 
+            AnoPublicacao = int.TryParse(info.PublishedDate?.Split('-')[0], out int ano) ? ano : 2020,
+            ISBN = "GGL-" + Guid.NewGuid().ToString().Substring(0, 6),
             AutorId = autor.Id,
-            CapaUrl = info.ImageLinks?.Thumbnail
+            CapaUrl = info.ImageLinks?.Thumbnail?.Replace("http://", "https://") // Garante HTTPS na imagem
         };
 
         db.Livros.Add(novoLivro);
@@ -174,7 +180,10 @@ app.MapPost("/api/seed", async (AppDataContext db) =>
     }
 
     await db.SaveChangesAsync();
-    return Results.Ok(new { mensagem = $"{livrosAdicionados} livros importados do Google com sucesso!" });
+    
+    return Results.Ok(new { 
+        mensagem = $"Importação finalizada! Assunto: '{assuntoEscolhido}'. {livrosAdicionados} novos livros adicionados." 
+    });
 })
 .WithTags("Admin");
 #endregion
@@ -184,13 +193,15 @@ app.Run();
 
 public class GoogleBooksResponse { public List<GoogleBookItem>? Items { get; set; } }
 public class GoogleBookItem { public GoogleBookVolumeInfo? VolumeInfo { get; set; } }
+
 public class GoogleBookVolumeInfo
 {
     public string? Title { get; set; }
     public List<string>? Authors { get; set; }
     public string? PublishedDate { get; set; }
-    public GoogleBookImageLinks? ImageLinks { get; set; }
+    public GoogleBookImageLinks? ImageLinks { get; set; } 
 }
+
 public class GoogleBookImageLinks 
 {
     public string? Thumbnail { get; set; }

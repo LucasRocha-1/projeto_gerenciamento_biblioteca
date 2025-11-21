@@ -23,6 +23,7 @@ public class LivrosController : ControllerBase
         _logger.LogInformation("GET /api/livros - Buscando todos os livros");
         var livros = await _db.Livros
             .Include(l => l.Autor)
+            .Include(l => l.EmprestadoParaUsuario)
             .ToListAsync();
         
         _logger.LogInformation($"Encontrados {livros.Count} livros");

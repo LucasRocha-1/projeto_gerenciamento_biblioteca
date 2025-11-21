@@ -66,6 +66,11 @@ function CatalogoLivros({ usuarioId, usuarioNome }: Props) {
       <div className="catalogo-grid">
         {livros.map(livro => (
           <div key={livro.id} className="card-livro">
+            <img 
+            src={livro.capaUrl ? livro.capaUrl : "https://via.placeholder.com/150x200?text=Sem+Capa"} 
+            alt={livro.titulo}
+            className="capa-livro" 
+            style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '4px', marginBottom: '10px' }}/>
             <h3>{livro.titulo}</h3>
             <p>Autor: {livro.autor?.nome || 'Desconhecido'}</p>
 

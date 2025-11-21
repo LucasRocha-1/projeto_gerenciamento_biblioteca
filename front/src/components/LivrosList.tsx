@@ -120,7 +120,7 @@ function LivrosList() {
               <td>{livro.autor?.nome}</td>
               
               <td style={{ fontWeight: 'bold', color: livro.emprestadoParaUsuarioId ? "#e74c3c" : "#27ae60" }}>
-                {livro.emprestadoParaUsuarioId ? `Emprestado: ${livro.emprestadoParaUsuario?.nome}` : "Disponível"}
+                {livro.emprestadoParaUsuarioId ? `Emprestado para: ${livro.emprestadoParaUsuario?.nome || "Cliente (Nome não carregado)"}`: "Disponível"}
               </td>
               
               <td>
