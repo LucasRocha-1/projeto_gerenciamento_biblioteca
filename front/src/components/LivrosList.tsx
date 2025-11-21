@@ -96,7 +96,7 @@ function LivrosList() {
       <div style={{ display: 'flex', gap: '15px', marginBottom: '20px', alignItems: 'center' }}>
         <Link to="/cadastro-livro" className="btn-primary" style={{textDecoration: 'none'}}>+ Novo Livro</Link>
         <Link to="/cadastro-usuario" className="btn-primary" style={{textDecoration: 'none'}}>+ Novo Cliente</Link> {}
-        <Link to="/cadastro-autor" className="btn-primary" style={{textDecoration: 'none'}}> + Novo Autor </Link>
+        {/* Autor agora é criado durante o cadastro do livro; link removido */}
         
         <button onClick={handleImportarDoGoogle} className="btn-success" disabled={carregando} style={{ marginLeft: 'auto' }}>
             {carregando ? "⏳ Importando..." : "☁️ Importar Google"}
