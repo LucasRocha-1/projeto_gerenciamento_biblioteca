@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 function Login({ onLogin }: { onLogin: (usuario: any) => void }) {
   const [nome, setNome] = useState("");
-  const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
+  const [email, setEmail] = useState("admin@biblioteca.com"); // Iniciar preenchidos
+  const [senha, setSenha] = useState("senhateste@123"); // Iniciar preenchidos
   const [mensagem, setMensagem] = useState("");
   const [mostrarCadastro, setMostrarCadastro] = useState(false);
   const [erros, setErros] = useState<{ nome?: string; email?: string; senha?: string }>({});

@@ -183,7 +183,7 @@ thead {
 
 th {
   background-color: var(--primary);
-  color: white; /* Texto branco para contraste com fundo escuro */
+  color: white; 
   padding: 15px;
   text-align: left;
   font-weight: 600;
@@ -204,7 +204,7 @@ tr:last-child td {
 }
 
 tr:hover {
-  background-color: #f8fafc; /* Cinza muito leve no hover */
+  background-color: #f8fafc; 
 }
 
 /* --- INPUTS E FORMULÁRIOS --- */
@@ -243,4 +243,40 @@ td button {
 
 td button:last-child {
   margin-right: 0;
+}
+/* --- TELA DE LOGIN --- */
+
+.login-container {
+  min-height: 100vh; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-page); 
+}
+
+.login-card {
+  background-color: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+  width: 100%;
+  max-width: 400px; 
+  text-align: center;
+}
+
+.login-title {
+  color: var(--primary);
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.link-text {
+  background: none;
+  border: none;
+  color: var(--accent);
+  margin-top: 15px;
+  font-size: 14px;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
 }

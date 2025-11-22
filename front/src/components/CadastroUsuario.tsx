@@ -3,8 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 function CadastroUsuario() {
-  const [nome, setNome] = useState("");
-  const [email, setEmail] = useState("");
+  const [nome, setNome] = useState("Enzo"); //Iniciar com nome
+  const [email, setEmail] = useState("enzoteste10@gmail.com"); //Iniciar com e-mail
   const navigate = useNavigate();
 
   function handleSubmit(e: React.FormEvent) {

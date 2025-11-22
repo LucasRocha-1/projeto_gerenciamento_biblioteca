@@ -8,10 +8,10 @@ interface Autor {
 }
 
 function CadastroLivro() {
-  const [titulo, setTitulo] = useState("");
-  const [isbn, setIsbn] = useState("");
-  const [ano, setAno] = useState(2024);
-  const [autorNome, setAutorNome] = useState(""); // Nome do autor para criar junto
+  const [titulo, setTitulo] = useState("Memórias Póstumas de Brás Cubas");
+  const [isbn, setIsbn] = useState("978.85.254.0687-3");
+  const [ano, setAno] = useState(1881);
+  const [autorNome, setAutorNome] = useState(" Machado de Assis"); // Nome do autor para criar junto
 
   const navigate = useNavigate();
 

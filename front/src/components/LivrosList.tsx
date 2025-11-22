@@ -94,19 +94,33 @@ function LivrosList() {
       
       {/* Barra de Ações */}
       <div style={{ display: 'flex', gap: '15px', marginBottom: '20px', alignItems: 'center' }}>
-        <Link to="/cadastro-livro" className="btn-primary" style={{textDecoration: 'none'}}>+ Novo Livro</Link>
-        <Link to="/cadastro-usuario" className="btn-primary" style={{textDecoration: 'none'}}>+ Novo Cliente</Link> {}
-        {/* Autor agora é criado durante o cadastro do livro; link removido */}
         
+        {/* Botão Novo Livro */}
+        <Link to="/cadastro-livro" className="btn-primary" style={{textDecoration: 'none'}}>
+            + Novo Livro
+        </Link>
+        
+        {/* Botão Novo Cliente */}
+        <Link to="/cadastro-usuario" className="btn-primary" style={{textDecoration: 'none'}}>
+            + Novo Cliente
+        </Link>
+
+        {/* Lista de Clientes */}
+        <Link to="/admin/usuarios" className="btn-primary" style={{textDecoration: 'none'}}>
+            Lista de Clientes
+        </Link>
+        {/* --------------------------- */}
+        
+        {/* Botão Importar (Fica na direita) */}
         <button onClick={handleImportarDoGoogle} className="btn-success" disabled={carregando} style={{ marginLeft: 'auto' }}>
             {carregando ? "⏳ Importando..." : "☁️ Importar Google"}
         </button>
       </div>
-
       {/* Tabela */}
       <table>
         <thead>
           <tr>
+            <th>ISBN</th>
             <th>Título</th>
             <th>Autor</th>
             <th>Status</th>
@@ -116,6 +130,7 @@ function LivrosList() {
         <tbody>
           {livros.map((livro) => (
             <tr key={livro.id}>
+              <td>{livro.isbn}</td>
               <td>{livro.titulo}</td>
               <td>{livro.autor?.nome}</td>
               
